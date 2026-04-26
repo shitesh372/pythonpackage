@@ -22,27 +22,21 @@ pipeline {
             }
         }
 
-
-        stage('Build WHL Package') {
+        stage('Build WHL') {
             steps {
-                echo '📦 Building wheel package...'
-                sh """
-                    . ${VENV_DIR}/bin/activate
-                    python -m build
-                """
+                sh '''
+                python3 -m build
+                '''
             }
         }
 
-        stage('Archive Artifacts') {
+        stage('Archive Artifact') {
             steps {
-                echo '🗄️ Archiving dist artifacts...'
-                archiveArtifacts artifacts: 'dist/*.whl, dist/*.tar.gz',
-                                 fingerprint: true,
-                                 allowEmptyArchive: false
-            }
+                archiveArtifacts artifacts: 'dist/*.whl', fingerprint: true
+         }
         }
-
-        }
+     }
+}
 
     post {
         success {
