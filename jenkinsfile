@@ -18,24 +18,38 @@ pipeline {
 
         stage('Setup Python Environment') {
             steps {
-              sh 'sudo apt install python3-venv -y'
+                echo '🐍 Creating virtual environment...'
+                sh """
+                    sudo apt install python3-venv -y
+                    ${PYTHON} -m venv ${VENV_DIR}
+                    . ${VENV_DIR}/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                """
             }
         }
 
-        stage('Build WHL') {
+
+        stage('Build WHL Package') {
             steps {
-                sh '''
-                python3 -m build
-                '''
+                echo '📦 Building wheel package...'
+                sh """
+                    . ${VENV_DIR}/bin/activate
+                    python -m build
+                """
             }
         }
 
-        stage('Archive Artifact') {
+        stage('Archive Artifacts') {
             steps {
-                archiveArtifacts artifacts: 'dist/*.whl', fingerprint: true
-         }
+                echo '🗄️ Archiving dist artifacts...'
+                archiveArtifacts artifacts: 'dist/*.whl, dist/*.tar.gz',
+                                 fingerprint: true,
+                                 allowEmptyArchive: false
+            }
         }
-     }
+
+        }
 
     post {
         success {
